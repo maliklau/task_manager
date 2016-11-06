@@ -1,4 +1,4 @@
-import math;
+from  Tkinter import *;
 import time;
 import calendar;
 import string;
@@ -34,6 +34,8 @@ def del_tsk(dic_tsk, tsk_lst, tsk_num, date):
 	if tsk_num == "all":
 		del dic_tsk[date]
 		print "Wow, you're productive!"
+	elif tsk_num == "clear history":
+		dic_tsk.clear()
 	else:
 		tsk_num = int(tsk_num)
 		finished = tsk_lst.pop(tsk_num-1)
@@ -74,7 +76,6 @@ def get_input(dic_tsk, tsk_lst, date):
 		to_del = str(raw_input("Which task is completed (# or all)? "))
 		del_tsk(dic_tsk, tsk_lst, to_del, date)
 
-	print "DIC: ", dic_tsk
 	print " "
         if choice == 'X':
 		save_dic(dic_tsk)
@@ -85,6 +86,7 @@ def get_input(dic_tsk, tsk_lst, date):
 def create_task(dic_tsk, tsk_lst, date):
 	task = str(raw_input("New task: "))
 	if date in dic_tsk:
+		tsk_lst = get_list(dic_tsk, date)
 		tsk_lst.append(task)
 		dic_tsk[date] = tsk_lst
 	else:
