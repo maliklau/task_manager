@@ -3,20 +3,25 @@ import time;
 import calendar;
 import string;
 import sys, traceback;
+import pickle;
 
 def display_date():
 	localtime = time.asctime( time.localtime(time.time()) )
-	print "TODAY :", localtime
-
+	print "TODAY :", localtime	
+	localtime =  str(localtime)
+	localtime = localtime[4:11] + localtime[19:]
+	return localtime
+ 
 def display_calendar(year, month):
 	cal = calendar.month(year, month)
 	print "Calendar:"
 	print cal
 	print " "
-	
-def display_tasks(file_tsk):
+		
+
+def display_tasks(file_tsk, date):
 	print " "
-	print "Tasks for (day)"
+	print "Tasks for", date
 	i = 1
 	for tasks in file_tsk:
 	 	i = str(i)
@@ -25,10 +30,9 @@ def display_tasks(file_tsk):
 		i = i + 1
 	print " "		
 
-def del_tsk(tsk_lst, tsk_num):
+def del_tsk(dic_tsk, tsk_lst, tsk_num, date):
 	if tsk_num == "all":
-		for tasks in tsk_lst:
-			tsk_lst.remove(tasks)
+		del dic_tsk[date]
 		print "Wow, you're productive!"
 	else:
 		tsk_num = int(tsk_num)
@@ -37,38 +41,75 @@ def del_tsk(tsk_lst, tsk_num):
 	
 	print " "
 
-def get_input(tsk_lst):
+def get_list(dic_tsk, date):
+	return dic_tsk.get(date)
+
+def get_input(dic_tsk, tsk_lst, date):
 	choice = raw_input("Calendar(C), Write task(W), Finished task(F), Exit(X): ")	
 	if choice =='C':
-                month = int(raw_input("search month #: "))
-                year = int(raw_input("search year: "))
+		try: 
+               		 month = int(raw_input("search month #: "))
+			 year = int(raw_input("search year: "))
+		except IndexError:
+                        print("Not a valid time value")
+                except ValueError:
+                        print("Not a valid time value")
                 print " "
-                display_calendar(year, month)
+		try:
+               		 display_calendar(year, month)
+		except IndexError:
+			print("Not a valid time value")
+			get_input(dic_tsk, tsk_lst, date)
+		date = str(raw_input("Choose date to add tasks: "))				
+		dic_tsk = create_task(dic_tsk, tsk_lst, date)
+		tsk_lst = get_list(dic_tsk, date)
+		display_tasks(tsk_lst, date)
 
         if choice =='W':
-                #new_file = open("tasks.txt",'w')
-                new_file = create_task(tsk_lst);
-                display_tasks(new_file);
+                dic_tsk = create_task(dic_tsk, tsk_lst, date);
+		tsk_lst = get_list(dic_tsk, date)
+                display_tasks(tsk_lst, date);
 	
 	if choice == 'F':
 		to_del = str(raw_input("Which task is completed (# or all)? "))
-		del_tsk(tsk_lst, to_del)
+		del_tsk(dic_tsk, tsk_lst, to_del, date)
 
+	print "DIC: ", dic_tsk
+	print " "
         if choice == 'X':
+		save_dic(dic_tsk)
                 exit(0)	
 
-	get_input(tsk_lst)
-	print " "
-	
-def create_task(tsk_lst):
+	get_input(dic_tsk, tsk_lst, date)
+	print " "	
+def create_task(dic_tsk, tsk_lst, date):
 	task = str(raw_input("New task: "))
-	tsk_lst.append(task)
-	return tsk_lst
+	if date in dic_tsk:
+		tsk_lst.append(task)
+		dic_tsk[date] = tsk_lst
+	else:
+		tsk_lst = []
+		tsk_lst.append(task)
+		dic_tsk[date] = tsk_lst
+	return dic_tsk
+
+def save_dic(dic_tsk):
+	  svd_file = open('dic_file.pk1', 'wb')
+          pickle.dump(dic_tsk, svd_file)
+          svd_file.close()		
+
+def unpickle():
+	dic_again = open('dic_file.pk1','rb')
+	dic_tsk = pickle.load(dic_again)
+	return dic_tsk
 
 def main():
 	tsk_lst = []
-	display_date()
+	try:
+		dic_tsk = unpickle()
+	except IOError:  
+		dic_tsk = {}
+	date = display_date()
 	print " "
-	get_input(tsk_lst)
-
+	get_input(dic_tsk, tsk_lst, date)
 main()
