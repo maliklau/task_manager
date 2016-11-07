@@ -30,6 +30,11 @@ def display_tasks(file_tsk, date):
 		i = i + 1
 	print " "		
 
+def display_log(dic_tsk):
+	print "Task Logs"
+	for key in dic_tsk:
+       		display_tasks(dic_tsk[key], key)
+
 def del_tsk(dic_tsk, tsk_lst, tsk_num, date):
 	if tsk_num == "all":
 		del dic_tsk[date]
@@ -47,7 +52,10 @@ def get_list(dic_tsk, date):
 	return dic_tsk.get(date)
 
 def get_input(dic_tsk, tsk_lst, date):
-	choice = raw_input("Calendar(C), Write task(W), Finished task(F), Exit(X): ")	
+	choice = raw_input("Calendar(C), Write task(W), Finished task(F), Log(L),  Exit(X): ")	
+	if choice == 'L':
+		display_log(dic_tsk);
+
 	if choice =='C':
 		try: 
                		 month = int(raw_input("search month #: "))
